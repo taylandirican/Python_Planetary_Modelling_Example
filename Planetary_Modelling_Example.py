@@ -55,96 +55,36 @@ class Star_System:
         self.Distance = math.sqrt(
             ((self.Planet.xLocatexm) ** 2) + ((self.Planet.yLocatexm) ** 2)
         )
+        G = 6.674e-11
+        v_orb = math.sqrt((G * self.Star.Massxkg) / self.Distance)
+        self.Vx = 0
+        self.Vy = v_orb * 0.8
 
     def Gravitational_Forcex(self):
         G = 6.674e-11
-        F = (G * self.Star.Massxkg * self.Planet.Massxkg) / (
-            self.Distance + self.Planet.Radiusxm + self.Star.Radiusxm
-        )
+        F = (G * self.Star.Massxkg * self.Planet.Massxkg) / (self.Distance) ** 2
 
-        sinx = (self.Planet.xLocatexm) / math.sqrt((self.Planet.xLocatexm) ** 2) + (
-            (self.Planet.yLocatexm) ** 2
-        )
+        cosx = (self.Planet.xLocatexm) / (self.Distance)
 
-        if self.Planet.xLocatexm > 0 and self.Planet.yLocatexm > 0:
-            return -F * sinx
-        if self.Planet.xLocatexm < 0 and self.Planet.yLocatexm > 0:
-            return +F * sinx
-        if self.Planet.xLocatexm < 0 and self.Planet.yLocatexm < 0:
-            return +F * sinx
-        if self.Planet.xLocatexm > 0 and self.Planet.yLocatexm < 0:
-            return -F * sinx
+        return -F * cosx
 
     def Gravitational_Forcey(self):
         G = 6.674e-11
-        F = (G * self.Star.Massxkg * self.Planet.Massxkg) / (
-            self.Distance + self.Planet.Radiusxm + self.Star.Radiusxm
-        )
+        F = (G * self.Star.Massxkg * self.Planet.Massxkg) / (self.Distance) ** 2
 
-        siny = (self.Planet.yLocatexm) / math.sqrt((self.Planet.xLocatexm) ** 2) + (
-            (self.Planet.yLocatexm) ** 2
-        )
+        sinx = (self.Planet.yLocatexm) / (self.Distance)
 
-        if self.Planet.xLocatexm > 0 and self.Planet.yLocatexm > 0:
-            return -F * siny
-        if self.Planet.xLocatexm < 0 and self.Planet.yLocatexm > 0:
-            return -F * siny
-        if self.Planet.xLocatexm < 0 and self.Planet.yLocatexm < 0:
-            return +F * siny
-        if self.Planet.xLocatexm > 0 and self.Planet.yLocatexm < 0:
-            return +F * siny
+        return -F * sinx
 
-    def Vx(self):
-        G = 6.674e-11
-        v = math.sqrt(
-            (G * self.Star.Massxkg) / self.Distance
-            + self.Planet.Radiusxm
-            + self.Star.Radiusxm
-        )
-
-        sinx = (self.Planet.xLocatexm) / math.sqrt((self.Planet.xLocatexm) ** 2) + (
-            (self.Planet.yLocatexm) ** 2
-        )
-
-        if self.Planet.xLocatexm > 0 and self.Planet.yLocatexm > 0:
-            return -v * sinx
-        if self.Planet.xLocatexm < 0 and self.Planet.yLocatexm > 0:
-            return -v * sinx
-        if self.Planet.xLocatexm < 0 and self.Planet.yLocatexm < 0:
-            return +v * sinx
-        if self.Planet.xLocatexm > 0 and self.Planet.yLocatexm < 0:
-            return +v * sinx
-
-    def Vy(self):
-        G = 6.674e-11
-        v = math.sqrt(
-            (G * self.Star.Massxkg) / self.Distance
-            + self.Planet.Radiusxm
-            + self.Star.Radiusxm
-        )
-
-        siny = (self.Planet.yLocatexm) / math.sqrt((self.Planet.xLocatexm) ** 2) + (
-            (self.Planet.yLocatexm) ** 2
-        )
-
-        if self.Planet.xLocatexm > 0 and self.Planet.yLocatexm > 0:
-            return +v * siny
-        if self.Planet.xLocatexm < 0 and self.Planet.yLocatexm > 0:
-            return -v * siny
-        if self.Planet.xLocatexm < 0 and self.Planet.yLocatexm < 0:
-            return -v * siny
-        if self.Planet.xLocatexm > 0 and self.Planet.yLocatexm < 0:
-            return +v * siny
-
-    def Move(self, time=3600 * 24):
+    def Move(self, time=1000):
         ax = self.Gravitational_Forcex() / self.Planet.Massxkg
         ay = self.Gravitational_Forcey() / self.Planet.Massxkg
 
-        self.Vx() = self.Vx() + time * ax
-        self.Vy() = self.Vy() + time * ay
+        self.Vx = self.Vx + time * ax
+        self.Vy = self.Vy + time * ay
 
-        self.Planet.xLocatexm += self.Vx() * time
-        self.Planet.yLocatexm += self.Vy() * time
+        self.Planet.xLocatexm += self.Vx * time
+        self.Planet.yLocatexm += self.Vy * time
 
         self.Distance = math.sqrt(
             (self.Planet.xLocatexm**2) + (self.Planet.yLocatexm**2)
@@ -167,32 +107,31 @@ Sistem = Star_System("Güneş_Sistemi", Dünya, Güneş)
 
 x_gecmis, y_gecmiş = [], []
 
-x_dünya = []
-y_dünya = []
+fig, ax = plt.subplots(figsize=(12, 12))
+ax.set_xlim(-3e11, 3e11)
+ax.set_ylim(-3e11, 3e11)
+ax.set_aspect("equal")
+ax.grid(True, alpha=0.3)
+
+(gunes,) = ax.plot(0, 0, "yo", markersize=50, label="Güneş")
+(dünya,) = ax.plot([], [], "bo", markersize=5, label="Dünya")
+(yorunge,) = ax.plot([], [], "b--", alpha=0.4, linewidth=1)
 
 
 def update(frame):
-    Sistem.Move()
+    for i in range(10):
+        Sistem.Move()
 
     x_gecmis.append(Sistem.Planet.xLocatexm)
     y_gecmiş.append(Sistem.Planet.yLocatexm)
 
-    x_dünya = Sistem.Planet.xLocatexm
-    y_dünya = Sistem.Planet.yLocatexm
+    dünya.set_data([Sistem.Planet.xLocatexm], [Sistem.Planet.yLocatexm])
+    yorunge.set_data(x_gecmis, y_gecmiş)
+
+    return dünya, yorunge
 
 
-fig, ax = plt.subplots(figsize=(7, 7))
-ax.set_xlim(-2e11, 2e11)
-ax.set_ylim(-2e11, 2e11)
-ax.set_aspect("equal")
-ax.grid(True, alpha=0.3)
-
-gunes = ax.plot(0, 0, "yo", markersize=10, label="Güneş")
-dünya = ax.plot(x_dünya, y_dünya, "bo", markersize=6, label="Dünya")
-yorunge = ax.plot([], [], "b--", alpha=0.4, linewidth=1)
-
-
-ani = FuncAnimation(fig, update, frames=120, interval=20, blit=True)
+ani = FuncAnimation(fig, update, frames=240, interval=20, blit=True)
 
 plt.legend()
 plt.show()
