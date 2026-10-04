@@ -27,13 +27,13 @@ class Star:
 
 
 class Planet:
-    def __init__(self, Name, Massxkg, Radiusxm, xLocatexm, yLocatexm):
+    def __init__(self, Name, Massxkg, Radiusxm, xLocatexm):
         self.Name = Name
         self.Massxkg = Massxkg
         self.Radiusxm = Radiusxm
         self.Inertia = (2 / 5) * Massxkg * (Radiusxm**2)
         self.xLocatexm = xLocatexm
-        self.yLocatexm = yLocatexm
+        self.yLocatexm = 0
 
     def Gravitational_Acceleration(self, Distancexm):
         G = 6.674e-11
@@ -91,9 +91,8 @@ class Star_System:
         )
 
 
-# Calculate
+# Stars and Planets
 
-Dünya = Planet("Dünya", 6e24, 6.378e3, 152e9, 0)
 
 Güneş = Star(
     "Güneş",
@@ -101,37 +100,113 @@ Güneş = Star(
     696.300e3,
 )
 
-Sistem = Star_System("Güneş_Sistemi", Dünya, Güneş)
+Planet1 = Planet("Planet1", 0, 0, 0)
+
+
+import Planets_and_Stars as ps
+
+Data = ps.Data_Planets
+
+Planet_input = input(
+    "Enter the name of the planet(Mercury, Venus, Earth, Mars, Jupiter, Saturn, Uranus, Neptune): "
+)
+
+if Planet_input.lower() == "mercury":
+    Planet1 = Planet(
+        "Planet1",
+        Data.iloc[0]["Massxkg"],
+        Data.iloc[0]["Radiusxm"],
+        Data.iloc[0]["Distancexm"],
+    )
+    color = "gray"
+if Planet_input.lower() == "venus":
+    Planet1 = Planet(
+        "Planet1",
+        Data.iloc[1]["Massxkg"],
+        Data.iloc[1]["Radiusxm"],
+        Data.iloc[1]["Distancexm"],
+    )
+    color = "chocolate"
+if Planet_input.lower() == "earth":
+    Planet1 = Planet(
+        "Planet1",
+        Data.iloc[2]["Massxkg"],
+        Data.iloc[2]["Radiusxm"],
+        Data.iloc[2]["Distancexm"],
+    )
+    color = "blue"
+if Planet_input.lower() == "mars":
+    Planet1 = Planet(
+        "Planet1",
+        Data.iloc[3]["Massxkg"],
+        Data.iloc[3]["Radiusxm"],
+        Data.iloc[3]["Distancexm"],
+    )
+    color = "red"
+if Planet_input.lower() == "jupiter":
+    Planet1 = Planet(
+        "Planet1",
+        Data.iloc[4]["Massxkg"],
+        Data.iloc[4]["Radiusxm"],
+        Data.iloc[4]["Distancexm"],
+    )
+    color = "navajowhite"
+if Planet_input.lower() == "saturn":
+    Planet1 = Planet(
+        "Planet1",
+        Data.iloc[5]["Massxkg"],
+        Data.iloc[5]["Radiusxm"],
+        Data.iloc[5]["Distancexm"],
+    )
+    color = "peru"
+if Planet_input.lower() == "uranus":
+    Planet1 = Planet(
+        "Planet1",
+        Data.iloc[6]["Massxkg"],
+        Data.iloc[6]["Radiusxm"],
+        Data.iloc[6]["Distancexm"],
+    )
+    color = "lightblue"
+if Planet_input.lower() == "neptune":
+    Planet1 = Planet(
+        "Planet1",
+        Data.iloc[7]["Massxkg"],
+        Data.iloc[7]["Radiusxm"],
+        Data.iloc[7]["Distancexm"],
+    )
+    color = "darkblue"
+
 # Simulation
 
+System = Star_System("Star_System", Planet1, Güneş)
 
-x_gecmis, y_gecmiş = [], []
+x_past, y_past = [], []
 
 fig, ax = plt.subplots(figsize=(12, 12))
-ax.set_xlim(-3e11, 3e11)
-ax.set_ylim(-3e11, 3e11)
+ax.set_xlim(-1.5 * Planet1.xLocatexm, 1.5 * Planet1.xLocatexm)
+ax.set_ylim(-1.5 * Planet1.xLocatexm, 1.5 * Planet1.xLocatexm)
 ax.set_aspect("equal")
 ax.grid(True, alpha=0.3)
 
-(gunes,) = ax.plot(0, 0, "yo", markersize=50, label="Güneş")
-(dünya,) = ax.plot([], [], "bo", markersize=5, label="Dünya")
-(yorunge,) = ax.plot([], [], "b--", alpha=0.4, linewidth=1)
+(star,) = ax.plot(0, 0, "yo", markersize=30, label="Star")
+(planet,) = ax.plot([], [], color=color, marker="o", markersize=5, label="Planet")
+(orbit,) = ax.plot([], [], "k--", alpha=0.4, linewidth=1)
 
 
 def update(frame):
     for i in range(10):
-        Sistem.Move()
+        System.Move()
 
-    x_gecmis.append(Sistem.Planet.xLocatexm)
-    y_gecmiş.append(Sistem.Planet.yLocatexm)
+    x_past.append(System.Planet.xLocatexm)
+    y_past.append(System.Planet.yLocatexm)
 
-    dünya.set_data([Sistem.Planet.xLocatexm], [Sistem.Planet.yLocatexm])
-    yorunge.set_data(x_gecmis, y_gecmiş)
+    planet.set_data([System.Planet.xLocatexm], [System.Planet.yLocatexm])
+    orbit.set_data(x_past, y_past)
 
-    return dünya, yorunge
+    return planet, orbit
 
 
-ani = FuncAnimation(fig, update, frames=240, interval=20, blit=True)
+ani = FuncAnimation(fig, update, frames=240, interval=20, blit=False)
 
 plt.legend()
 plt.show()
